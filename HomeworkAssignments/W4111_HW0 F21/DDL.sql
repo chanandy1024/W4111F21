@@ -1,5 +1,4 @@
-create schema db_book;
-use db_book;
+use bookexample;
 
 create table classroom
 	(building		varchar(15),
