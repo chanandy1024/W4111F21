@@ -138,11 +138,10 @@ class CSVDataTable(BaseDataTable):
             by the key.
         """
 
-        dictionary = dict(zip(self._key_columns, key_fields))
-
+        template = dict(zip(self._key_columns, key_fields))
         # What method can you use?
 
-        return
+        return self.find_by_template(template, field_list)
 
     def find_by_template(self, template, field_list=None, limit=None, offset=None, order_by=None):
         """
@@ -173,8 +172,8 @@ class CSVDataTable(BaseDataTable):
         """
 
         # HINT: Create a dictionary of values/a template for key fields, then call a method you wrote
-
-        return
+        dictionary = dict(zip(self._key_columns, key_fields))
+        return self.delete_by_template(dictionary)
 
     def delete_by_template(self, template):
         """
@@ -183,8 +182,11 @@ class CSVDataTable(BaseDataTable):
         :return: Number of rows deleted.
         """
         counter = 0
-
         # Iterate through rows, if matches, remove the row
+        for r in reversed(self._rows):
+            if CSVDataTable.matches_template(r, template):
+                self._rows.remove(r)
+                counter += 1
 
         return counter
 
@@ -197,8 +199,8 @@ class CSVDataTable(BaseDataTable):
         """
 
         # HINT: Create a dictionary of values/a template for key fields, then call a method you wrote
-
-        return
+        dictionary = dict(zip(self._key_columns, key_fields))
+        return self.update_by_template(dictionary, new_values)
 
     def update_by_template(self, template, new_values):
         """
@@ -206,11 +208,17 @@ class CSVDataTable(BaseDataTable):
         :param new_values: New values to set for matching fields.
         :return: Number of rows updated.
         """
-
-        counter = 0
-
         # Iterate through rows, if matches, update the row... what should you check first?
-
+        record = self.find_by_template(template)
+        counter = 0
+        if record:
+            for r in reversed(self._rows):
+                if CSVDataTable.matches_template(r, template):
+                    for k, v in new_values.items():
+                        r[k] = v
+                    counter += 1
+        else:
+            print("player doesn't exist")
         return counter
 
     def insert(self, new_record):
@@ -219,9 +227,12 @@ class CSVDataTable(BaseDataTable):
         :param new_record: A dictionary representing a row to add to the set of records.
         :return: None
         """
-
         # HINT: Append a new_record... what should you check first?
-
+        record = self.find_by_template(new_record)
+        if not record:
+            self._rows.append(new_record)
+        else:
+            print("player already exists")
 
     def get_rows(self):
         return self._rows
